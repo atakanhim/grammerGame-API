@@ -8,6 +8,6 @@ namespace grammerGame.Application.Abstractions.Services.Authentications
 {
     public interface IExternalAuthentication
     {
-        Task<DTOs.Token> GoogleLoginAsync(string idToken, int accessTokenLifeTimeSecond, int refreshTokenLifeTimeSecond);
+        Task<(DTOs.Token,int)> GoogleLoginAsync(string idToken, int accessTokenLifeTimeSecond, int refreshTokenLifeTimeSecond);
     }
 }

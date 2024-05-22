@@ -33,7 +33,7 @@ namespace grammerGame.Persistence.Services
             _userService = userService;
 
         }
-        async Task<Token> CreateUserExternalAsync(AppUser user, string email, string name, UserLoginInfo info, int accessTokenLifeTime,int refreshTokenLifeTimeSecond)
+        async Task<(Token, int)> CreateUserExternalAsync(AppUser user, string email, string name, UserLoginInfo info, int accessTokenLifeTime,int refreshTokenLifeTimeSecond)
         {
             bool result = user != null;
             if (user == null)
@@ -43,7 +43,6 @@ namespace grammerGame.Persistence.Services
                 {
                     user = new()
                     {
-                        Id = new Random().Next(),
                         Email = email,
                         UserName = email,
                         RefreshToken = "",// zaten bir sonraki if dongusu icerisinde refresh token update ediyoruz
@@ -57,15 +56,15 @@ namespace grammerGame.Persistence.Services
             if (result)
             {
                 await _userManager.AddLoginAsync(user, info); //AspNetUserLogins
-
                 Token token = _tokenHandler.CreateAccessToken(accessTokenLifeTime, user);
                 await _userService.UpdateRefreshTokenAsync(token.RefreshToken, user, token.Expiration, refreshTokenLifeTimeSecond);
-                return token;
+                var usr = _userManager.FindByEmailAsync(user.Email);
+                return (token,usr.Id);
             }
             throw new Exception("custom error,Invalid external authentication.");
         }
         
-        public async Task<Token> GoogleLoginAsync(string idToken, int accessTokenLifeTimeSecond,int refreshTokenLifeTimeSecond)
+        public async Task<(Token, int)> GoogleLoginAsync(string idToken, int accessTokenLifeTimeSecond,int refreshTokenLifeTimeSecond)
         {
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {

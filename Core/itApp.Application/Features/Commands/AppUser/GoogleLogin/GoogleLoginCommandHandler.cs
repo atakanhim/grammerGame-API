@@ -15,10 +15,11 @@ namespace grammerGame.Application.Features.Commands.AppUser.GoogleLogin
 
         public async Task<GoogleLoginCommandResponse> Handle(GoogleLoginCommandRequest request, CancellationToken cancellationToken)
         {
-            Token token = await _authService.GoogleLoginAsync(request.IdToken, 15000, 86400);
+            (Token token,int id) = await _authService.GoogleLoginAsync(request.IdToken, 15000, 86400);
             return new()
             {
-                Token = token
+                Token = token,
+                Id = id
             };
 
         }
