@@ -111,6 +111,25 @@ namespace grammerGame.Persistence.Services
                 throw new Exception(ex.Message);
             }
 
+        }     
+        public async Task<AppUser> GetUserWithId(int id)
+        {
+            try
+            {
+                var user = await _userManager.Users
+                        .Include(y=>y.GameProgress)
+                             .Where(x => x.Id == id)
+                             .FirstOrDefaultAsync();
+
+                if (user == null)
+                    throw new NotFoundUserException("Kullanıcı bulunamadı");
+                return user;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
         }
         public Task<bool> HasRolePermissionToEndpointAsync(string name, string code)
         {

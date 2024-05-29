@@ -10,7 +10,7 @@ namespace grammerGame.Application.Abstractions.Services
         Task<bool> IsUserExists(string usurId);
         Task<CreateUserResponse> CreateAsync(CreateUser model);
         Task<ListUser> GetUser(string userName);
-
+        Task<AppUser> GetUserWithId(int id);
         Task UpdateRefreshTokenAsync(string? refreshToken, AppUser user, DateTime? accessTokenDate, int addOnAccessTokenDate);
         Task UpdatePasswordAsync(string userId, string resetToken, string newPassword);
         Task<List<ListUser>> GetAllUsersAsync(int page, int size);

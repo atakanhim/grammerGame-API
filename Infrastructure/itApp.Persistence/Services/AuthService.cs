@@ -8,6 +8,8 @@ using grammerGame.Application.Abstractions.Token;
 using grammerGame.Application.DTOs;
 using grammerGame.Application.Exceptions;
 using grammerGame.Domain.Entities.Identity;
+using grammerGame.Application.Repositories;
+using grammerGame.Domain.Entities;
 
 namespace grammerGame.Persistence.Services
 {
@@ -16,6 +18,7 @@ namespace grammerGame.Persistence.Services
         readonly IConfiguration _configuration;
         readonly UserManager<Domain.Entities.Identity.AppUser> _userManager;
         readonly ITokenHandler _tokenHandler;
+        readonly IGameProgressWriteRepository _gameProgressWriteRepository;
         readonly SignInManager<Domain.Entities.Identity.AppUser> _signInManager;
         readonly IUserService _userService;
         public AuthService(
@@ -24,31 +27,44 @@ namespace grammerGame.Persistence.Services
             ITokenHandler tokenHandler,
             SignInManager<AppUser> signInManager,
             IUserService userService
-         )
+,
+            IGameProgressWriteRepository gameProgressWriteRepository)
         {
             _configuration = configuration;
             _userManager = userManager;
             _tokenHandler = tokenHandler;
             _signInManager = signInManager;
             _userService = userService;
-
+            _gameProgressWriteRepository = gameProgressWriteRepository;
         }
-        async Task<(Token, int)> CreateUserExternalAsync(AppUser user, string email, string name, UserLoginInfo info, int accessTokenLifeTime,int refreshTokenLifeTimeSecond)
+        async Task<(Token, int)> CreateUserExternalAsync(AppUser user, GoogleJsonWebSignature.Payload payload, UserLoginInfo info, int accessTokenLifeTime,int refreshTokenLifeTimeSecond)
         {
             bool result = user != null;
             if (user == null)
             {
-                user = await _userManager.FindByEmailAsync(email);
+                user = await _userManager.FindByEmailAsync(payload.Email);
                 if (user == null)
                 {
                     user = new()
                     {
-                        Email = email,
-                        UserName = email,
+                        FullName = payload.Name,
+                        UserName = payload.Email,
+                        GivenName = payload.GivenName,
+                        FamilyName = payload.FamilyName,
+                        Email = payload.Email,  
+                        Photo = payload.Picture,
                         RefreshToken = "",// zaten bir sonraki if dongusu icerisinde refresh token update ediyoruz
                         RefreshTokenEndDate = DateTime.UtcNow,
                     };
                     var identityResult = await _userManager.CreateAsync(user);
+                    var userId = await _userManager.GetUserIdAsync(user);
+                   if (identityResult != null && userId != null)
+                    {
+                       GameProgress gameProgress = new GameProgress() {     
+                           AppUserId=int.Parse(userId),
+                       };
+                        await _gameProgressWriteRepository.AddAsync(gameProgress);
+                   }
                     result = identityResult.Succeeded;
                 }
             }
@@ -58,7 +74,7 @@ namespace grammerGame.Persistence.Services
                 await _userManager.AddLoginAsync(user, info); //AspNetUserLogins
                 Token token = _tokenHandler.CreateAccessToken(accessTokenLifeTime, user);
                 await _userService.UpdateRefreshTokenAsync(token.RefreshToken, user, token.Expiration, refreshTokenLifeTimeSecond);
-                var usr = _userManager.FindByEmailAsync(user.Email);
+                var usr =await _userManager.Users.Where(x => x.UserName == user.UserName).FirstOrDefaultAsync(); 
                 return (token,usr.Id);
             }
             throw new Exception("custom error,Invalid external authentication.");
@@ -76,7 +92,7 @@ namespace grammerGame.Persistence.Services
                 var info = new UserLoginInfo("GOOGLE", payload.Subject, "GOOGLE");
                 Domain.Entities.Identity.AppUser user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
 
-                return await CreateUserExternalAsync(user, payload.Email, payload.Name, info, accessTokenLifeTimeSecond, refreshTokenLifeTimeSecond);
+                return await CreateUserExternalAsync(user, payload, info, accessTokenLifeTimeSecond, refreshTokenLifeTimeSecond);
             }
             catch (Exception ex)
             {

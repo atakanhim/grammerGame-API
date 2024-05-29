@@ -19,9 +19,23 @@ namespace grammerGame.Persistence.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<AppUser>()
+                .HasOne(a => a.GameProgress)
+                .WithOne(g => g.AppUser)
+                .HasForeignKey<GameProgress>(g => g.AppUserId);
+
+            modelBuilder.Entity<AppUser>()
+                .HasOne(a => a.UserPreferences)
+                .WithOne(u => u.AppUser)
+                .HasForeignKey<UserPreferences>(u => u.AppUserId);
+
+            modelBuilder.Entity<AppUser>()
+                .HasOne(a => a.SocialData)
+                .WithOne(s => s.AppUser)
+                .HasForeignKey<SocialData>(s => s.AppUserId);
         }
 
-      
+
     }
  }
 

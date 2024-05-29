@@ -54,5 +54,18 @@ namespace grammerGame.API.Controllers
                 return Ok(json);
         
         }
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetUserWithId([FromQuery] GetUserWithIdQueryRequest getUserQueryRequest)
+        {
+            GetUserWithIdQueryResponse response = await _mediator.Send(getUserQueryRequest);
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            // Nesneleri JSON'a dönüştür
+            string json = JsonConvert.SerializeObject(response, settings);
+            return Ok(json);
+
+        }
     }
 }

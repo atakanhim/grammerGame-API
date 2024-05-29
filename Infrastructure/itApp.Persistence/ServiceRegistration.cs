@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using grammerGame.Application.Mappings;
+using grammerGame.Application.Repositories;
+using grammerGame.Persistence.Repositories;
 
 
 namespace grammerGame.Persistence
@@ -37,7 +39,8 @@ namespace grammerGame.Persistence
             services.AddScoped<IExternalAuthentication, AuthService>();
             services.AddScoped<IInternalAuthentication, AuthService>();
 
-     
+            services.AddScoped<IGameProgressReadRepository, GameProgressReadRepository>();
+            services.AddScoped<IGameProgressWriteRepository, GameProgressWriteRepository>();
 
 
         }

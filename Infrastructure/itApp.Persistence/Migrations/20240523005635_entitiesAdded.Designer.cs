@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using grammerGame.Persistence.Context;
 
@@ -11,9 +12,11 @@ using grammerGame.Persistence.Context;
 namespace grammerGame.Persistence.Migrations
 {
     [DbContext(typeof(GrammerGameDbContext))]
-    partial class GrammerGameDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240523005635_entitiesAdded")]
+    partial class entitiesAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -145,9 +148,8 @@ namespace grammerGame.Persistence.Migrations
                     b.Property<DateTime>("LastGameDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Rank")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Rank")
+                        .HasColumnType("int");
 
                     b.Property<int>("TotalCorrectAnswers")
                         .HasColumnType("int");
@@ -224,16 +226,16 @@ namespace grammerGame.Persistence.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("FamilyName")
+                    b.Property<string>("EnglishLevel")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("FamilyName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GivenName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InitialEnglishLevel")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -260,6 +262,7 @@ namespace grammerGame.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Photo")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RefreshToken")
@@ -268,6 +271,9 @@ namespace grammerGame.Persistence.Migrations
 
                     b.Property<DateTime>("RefreshTokenEndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

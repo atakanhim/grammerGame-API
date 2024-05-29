@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using grammerGame.Persistence.Context;
 
@@ -11,9 +12,11 @@ using grammerGame.Persistence.Context;
 namespace grammerGame.Persistence.Migrations
 {
     [DbContext(typeof(GrammerGameDbContext))]
-    partial class GrammerGameDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240523012123_mig3")]
+    partial class mig3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -145,9 +148,8 @@ namespace grammerGame.Persistence.Migrations
                     b.Property<DateTime>("LastGameDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Rank")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Rank")
+                        .HasColumnType("int");
 
                     b.Property<int>("TotalCorrectAnswers")
                         .HasColumnType("int");
